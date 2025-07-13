@@ -1,11 +1,11 @@
 # backend part
-[ ] initializing project and creating schema
-[ ] defining all route using mvc model user/admin,course,purchasedCourse
-[ ] writing instances of allroute endpoint  
-[ ] we'll use express,mongoose,zod,bcrypt,jwt,cors  
-[ ] work with .env  
+[] initializing project and creating schema
+[] defining all route using mvc model user/admin,course,purchasedCourse
+[] writing instances of allroute endpoint  
+[] we'll use express,mongoose,zod,bcrypt,jwt,cors  
+[] work with .env  
 
 
 
 # frontend part
-[ ] vite with react
+[] vite with react
