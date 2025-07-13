@@ -14,6 +14,7 @@ const courseContentSchema = new mongoose.Schema({
     description: String,
     imageUrl: String,
     price: Number,
+    CreatorId:String,
 })
 
 const purchasedSchema = new mongoose.Schema({
@@ -21,12 +22,12 @@ const purchasedSchema = new mongoose.Schema({
     courseId: { type: mongoose.Types.ObjectId, ref: "Course" }
 })
 
-const User = mongoose.model("user", userSchema);
-const Course = mongoose.model("Course", courseContentSchema);
-const Purchased = mongoose.model("Purchased", purchasedSchema);
+const UserModel = mongoose.model("user", userSchema);
+const CourseModel = mongoose.model("Course", courseContentSchema);
+const PurchasedModel = mongoose.model("Purchased", purchasedSchema);
 
 module.exports = {
-    User,
-    Course,
-    Purchased
+    UserModel,
+    CourseModel,
+    PurchasedModel
 }
