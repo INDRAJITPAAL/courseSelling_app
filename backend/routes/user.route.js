@@ -1,9 +1,10 @@
-const express = require("express");
+import express from "express";
+import { signupBody, signinBody } from "../validator/object.validator.js";
+import { UserModel } from "../models/db.models.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 const userRoute = express.Router();
-const { signupBody, signinBody } = require("../validator/object.validator");
-const { UserModel } = require("../models/db.models");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 
 // ----------- SIGNUP ----------
 userRoute.post("/signup", async (req, res) => {
@@ -14,9 +15,7 @@ userRoute.post("/signup", async (req, res) => {
             error: parsedBody.error.format(),
         });
     }
-
     const { userName, email, password, role } = parsedBody.data;
-
     const existingUser = await UserModel.findOne({ email }).select("-password");
     if (existingUser) {
         return res.status(409).json({
@@ -24,7 +23,6 @@ userRoute.post("/signup", async (req, res) => {
             msg: "Email already in use!",
         });
     }
-
     const hashedPass = await bcrypt.hash(password, 8);
     const newUser = await UserModel.create({ userName, email, password: hashedPass, role });
 
@@ -40,7 +38,6 @@ userRoute.post("/signup", async (req, res) => {
         msg: "User signed up successfully",
     });
 });
-
 
 // ----------- SIGNIN ----------
 userRoute.post("/signin", async (req, res) => {
@@ -83,6 +80,4 @@ userRoute.post("/signin", async (req, res) => {
     });
 });
 
-module.exports = {
-    userRoute,
-};
+export default { userRoute };

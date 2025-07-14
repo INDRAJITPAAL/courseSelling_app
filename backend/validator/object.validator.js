@@ -1,19 +1,25 @@
-const { z } = require("zod");
+import { z } from "zod";
 
-const signupBody = z.object({
+export const signupBody = z.object({
     userName: z.string().min(1).max(100),
     email: z.string().email().min(1).max(100),
     password: z.string().min(6).max(100),
     role: z.enum(["user", "admin"])
 });
 
-const signinBody = z.object({
+export const signinBody = z.object({
     email: z.string().email().min(1).max(100),
     password: z.string().min(6).max(100),
     role: z.enum(["user", "admin"])
 });
 
-module.exports = {
-    signupBody,
-    signinBody
-};
+export const userPurchase = z.object({
+    courseId: z.string()
+});
+
+export const courseCreate = z.object({
+    title: z.string().min(1).max(1000),
+    description: z.string().min(1).max(1000),
+    price: z.number().min(0),
+    imageUrl: z.string(),
+})

@@ -1,10 +1,12 @@
-const express = require('express');
-const mongoose = require("mongoose");
+import express from 'express';
+import mongoose from 'mongoose';
+import { userRoute, purchageRoute, courseRoute } from './routes/user.route.js';
+
 const app = express();
-const { userRoute } = require("./routes/user.route");
+
 // Middleware to parse JSON bodies
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 // Basic route
 app.get('/', (req, res) => {
@@ -14,7 +16,9 @@ app.get('/', (req, res) => {
     });
 });
 
-app.use("/api/v1/user",userRoute);
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/course", courseRoute);
+app.use("/api/v1/purchase", purchageRoute);
 
 // Start the server
 function main() {
@@ -25,8 +29,6 @@ function main() {
         app.listen(PORT, () => {
             console.log(`http://localhost:${PORT}`);
         });
-
-    }).catch((e) => console.error(e.message))
-
+    }).catch((e) => console.error(e.message));
 }
 main();
