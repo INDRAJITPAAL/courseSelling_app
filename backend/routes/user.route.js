@@ -1,80 +1,88 @@
 const express = require("express");
 const userRoute = express.Router();
 const { signupBody, signinBody } = require("../validator/object.validator");
-const { userModel } = require("../models/db.models");
+const { UserModel } = require("../models/db.models");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-userRoute.post("/signup", async (req, res, next) => {
-
+// ----------- SIGNUP ----------
+userRoute.post("/signup", async (req, res) => {
     const parsedBody = signupBody.safeParse(req.body);
     if (!parsedBody.success) {
-        res.json({
+        return res.status(400).json({
             status: false,
-            error: parsedBody.error,
-        })
+            error: parsedBody.error.format(),
+        });
     }
 
-    const { userName, email, password, role } = parsedBody;
+    const { userName, email, password, role } = parsedBody.data;
 
-    const user = await userModel.findOne({ email }).select("-password");
-    if (user) {
-        res.status(501).json({
+    const existingUser = await UserModel.findOne({ email }).select("-password");
+    if (existingUser) {
+        return res.status(409).json({
             status: false,
-            msg: "user already in use!"
-        })
-        return;
+            msg: "Email already in use!",
+        });
     }
 
+    const hashedPass = await bcrypt.hash(password, 8);
+    const newUser = await UserModel.create({ userName, email, password: hashedPass, role });
 
-    // Create the user first
-
-    const hashedPass = bcrypt.genSaltSync(password, 8);
-    const newUser = await userModel.create({ userName, email, password: hashedPass, role });
     const token = jwt.sign(
         { userId: newUser._id },
-        role == "user" ? process.env.USER_JWT_SECERET : process.env.ADMIN_JWT_SECERET
+        role === "user" ? process.env.USER_JWT_SECRET : process.env.ADMIN_JWT_SECRET,
+        { expiresIn: "1d" }
     );
+
+    res.status(201).json({
+        status: true,
+        token,
+        msg: "User signed up successfully",
+    });
+});
+
+
+// ----------- SIGNIN ----------
+userRoute.post("/signin", async (req, res) => {
+    const parsedBody = signinBody.safeParse(req.body);
+    if (!parsedBody.success) {
+        return res.status(400).json({
+            status: false,
+            error: parsedBody.error.format(),
+        });
+    }
+
+    const { email, password, role } = parsedBody.data;
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+        return res.status(404).json({
+            status: false,
+            msg: "User not found",
+        });
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid || user.role !== role) {
+        return res.status(401).json({
+            status: false,
+            msg: "Incorrect credentials",
+        });
+    }
+
+    const token = jwt.sign(
+        { userId: user._id },
+        role === "user" ? process.env.USER_JWT_SECRET : process.env.ADMIN_JWT_SECRET,
+        { expiresIn: "1d" }
+    );
+
     res.status(200).json({
         status: true,
         token,
-        msg: "user signup success",
-    })
-    return;
+        msg: "User signed in successfully",
+    });
+});
 
-})
-
-userRoute.post("/signin", async (req, res, next) => {
-
-    const parsedBody = signinBody.safeParse(req.body);
-    if (!parsedBody.success) {
-        res.json({
-            status: false,
-            error: parsedBody.error,
-        })
-    }
-
-    const { email, password, role } = parsedBody;
-
-    const user = await userModel.findOne({ email });
-    const isValid = bcrypt.compare(password, user.password);
-
-    if (email === user.email && isValid) {
-        const token = jwt.sign(
-            { userId: user._id },
-            role == "user" ? process.env.USER_JWT_SECERET : process.env.ADMIN_JWT_SECERET
-        );
-        res.status(200).json({
-            status: true,
-            token,
-            msg: "user signup success",
-        })
-        return;
-    } else {
-        return res.status(404).json({
-            status: false,
-            msg: "incorrect credential"
-        })
-    }
-
-})
+module.exports = {
+    userRoute,
+};

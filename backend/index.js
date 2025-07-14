@@ -1,9 +1,10 @@
 const express = require('express');
 const mongoose = require("mongoose");
 const app = express();
-
+const { userRoute } = require("./routes/user.route");
 // Middleware to parse JSON bodies
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Basic route
 app.get('/', (req, res) => {
@@ -13,6 +14,7 @@ app.get('/', (req, res) => {
     });
 });
 
+app.use("/api/v1/user",userRoute);
 
 // Start the server
 function main() {
