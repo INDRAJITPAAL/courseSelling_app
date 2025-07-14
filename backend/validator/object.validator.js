@@ -23,3 +23,11 @@ export const courseCreate = z.object({
     price: z.number().min(0),
     imageUrl: z.string(),
 })
+export const courseUpdate = z.object({
+    title: z.string().min(1).max(1000),
+    description: z.string().min(1).max(1000),
+    price: z.number().min(0),
+    imageUrl: z.string(),
+    courseId:z.string(),
+})
+

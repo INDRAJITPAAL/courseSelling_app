@@ -1,6 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { userRoute, purchageRoute, courseRoute } from './routes/user.route.js';
+import { userRoute } from './routes/user.route.js';
+import { userPurchaseRoute } from "./routes/userPurchase.route.js";
+import { globalErrorHandler } from './middleware/error.middleware.js';
+
 
 const app = express();
 
@@ -17,8 +20,11 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/v1/user", userRoute);
-app.use("/api/v1/course", courseRoute);
-app.use("/api/v1/purchase", purchageRoute);
+app.use("/api/v1/course", );
+app.use("/api/v1/purchase",userPurchaseRoute );
+
+
+app.use(globalErrorHandler);
 
 // Start the server
 function main() {

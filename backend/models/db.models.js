@@ -12,7 +12,7 @@ const courseContentSchema = new mongoose.Schema({
     description: String,
     imageUrl: String,
     price: Number,
-    creatorId: String,
+    creatorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
 const purchasedSchema = new mongoose.Schema({
