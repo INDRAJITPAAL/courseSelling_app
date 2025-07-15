@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { tryCatch } from "../utils/tryCatch.handler.error.utils.js";
 import { AppError } from "../utils/AppError.class.utils.js";
+import { zodFlatError } from "../utils/flatError.utils.js";
+
 
 const userRoute = express.Router();
 
@@ -13,7 +15,7 @@ userRoute.post("/signup", tryCatch(async (req, res, next) => {
     const parsedBody = signupBody.safeParse(req.body);
     console.log(parsedBody);
     if (!parsedBody.success) {
-        return next(new AppError(parsedBody.error[0], 400));
+        return next(new AppError(parsedBody.error.message, 400));
     }
     const { userName, email, password, role } = parsedBody.data;
     const existingUser = await UserModel.findOne({ email }).select("-password");
@@ -47,7 +49,7 @@ userRoute.post("/signup", tryCatch(async (req, res, next) => {
 userRoute.post("/signin", tryCatch(async (req, res, next) => {
     const parsedBody = signinBody.safeParse(req.body);
     if (!parsedBody.success) {
-        return next(new AppError(parsedBody.error.format(), 400));
+        return next(new AppError(parsedBody.error.message, 400));
     }
 
     const { email, password } = parsedBody.data;
@@ -78,11 +80,6 @@ userRoute.post("/signin", tryCatch(async (req, res, next) => {
 
 
 
-userRoute.get("/courses", tryCatch(async (req, res) => {
-    res.status(200).json({
-        status: true,
-        courses: await CourseModel.find({}),
-    })
-}))
+
 
 export { userRoute };

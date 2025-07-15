@@ -5,7 +5,6 @@ import { AppError } from "../utils/AppError.class.utils";
 
 export function auth(jwtPassword) {
     return function (req, res, next) {
-           console.log("hi")
         const tokenBearer = req.headers.authorization;
         if (!tokenBearer || !tokenBearer.startsWith("Bearer ")) {
             return next(new AppError("Authorization header missing or malformed", 401));

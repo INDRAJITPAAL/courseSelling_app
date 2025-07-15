@@ -8,7 +8,7 @@ import { auth } from "../middleware/userAuth.middleware";
 import { tryCatch } from "../utils/tryCatch.handler.error.utils";
 
 courseRoute.post("/create", auth(admin_jwt), tryCatch(async (req, res, next) => {
- 
+
     const parsedBody = courseCreate.safeParse(req.body);
     if (!parsedBody.success) {
         return next(new AppError(parsedBody.error, 400));
@@ -33,11 +33,11 @@ courseRoute.post("/create", auth(admin_jwt), tryCatch(async (req, res, next) => 
     return res.json({
         status: true,
         message: "course created successfully",
-        courseId:createCourse._id
+        courseId: createCourse._id
     });
 }));
 
-courseRoute.put("/course", auth(admin_jwt), tryCatch(async (req, res, next) => {
+courseRoute.put("/update", auth(admin_jwt), tryCatch(async (req, res, next) => {
     const parsedBody = courseUpdate.safeParse(req.body);
     if (!parsedBody.success) {
         return next(new AppError(parsedBody.error, 400));
@@ -64,8 +64,8 @@ courseRoute.put("/course", auth(admin_jwt), tryCatch(async (req, res, next) => {
     });
 }));
 
-courseRoute.get("/courses", auth(admin_jwt), tryCatch(async (req, res, next) => {
-    const allAdminCourse = await CourseModel.find({creatorId:req.userId});
+courseRoute.get("/createdCourse", auth(admin_jwt), tryCatch(async (req, res, next) => {
+    const allAdminCourse = await CourseModel.find({ creatorId: req.userId });
     if (allAdminCourse.length === 0) {
         return next(new AppError("course not found", 404));
     }

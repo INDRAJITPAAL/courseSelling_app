@@ -4,6 +4,8 @@ import { userRoute } from './routes/user.route.js';
 import { userPurchaseRoute } from "./routes/userPurchase.route.js";
 import { globalErrorHandler } from './utils/GlobalError.handler.utils.js';
 import { courseRoute } from './routes/course.route.js';
+import { tryCatch } from './utils/tryCatch.handler.error.utils.js';
+import { CourseModel } from './models/db.models.js';
 
 
 const app = express();
@@ -19,6 +21,13 @@ app.get('/', (req, res) => {
         msg: 'Course Selling App Backend is running!'
     });
 });
+
+app.get("/courses", tryCatch(async (req, res) => {
+    res.status(200).json({
+        status: true,
+        courses: (await CourseModel.find({})),
+    })
+}))
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/course", courseRoute);

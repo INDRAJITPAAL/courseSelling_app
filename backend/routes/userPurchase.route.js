@@ -31,9 +31,7 @@ userPurchaseRoute.post("/course/:courseId", auth(user_jwt), tryCatch(async (req,
 
 userPurchaseRoute.get("/course", auth(user_jwt), tryCatch(async (req, res, next) => {
     const userId = req.userId;
-    const purchasedCourse = await PurchasedModel.find({ userId }, {
-        $in: { _id: purchasedCourse.courseId }
-    });
+    const purchasedCourse = await PurchasedModel.find({ userId }).populate("courseId");
 
     if (!purchasedCourse || purchasedCourse.length === 0) {
         return next(new AppError("No course found", 404));
