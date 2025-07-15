@@ -10,7 +10,6 @@ export const signupBody = z.object({
 export const signinBody = z.object({
     email: z.string().email().min(1).max(100),
     password: z.string().min(6).max(100),
-    role: z.enum(["user", "admin"])
 });
 
 export const userPurchase = z.object({

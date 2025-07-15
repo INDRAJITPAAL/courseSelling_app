@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { userRoute } from './routes/user.route.js';
 import { userPurchaseRoute } from "./routes/userPurchase.route.js";
-import { globalErrorHandler } from './middleware/error.middleware.js';
+import { globalErrorHandler } from './utils/GlobalError.handler.utils.js';
+import { courseRoute } from './routes/course.route.js';
 
 
 const app = express();
@@ -20,8 +21,8 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/v1/user", userRoute);
-app.use("/api/v1/course", );
-app.use("/api/v1/purchase",userPurchaseRoute );
+app.use("/api/v1/course", courseRoute);
+app.use("/api/v1/purchase", userPurchaseRoute);
 
 
 app.use(globalErrorHandler);
@@ -30,7 +31,8 @@ app.use(globalErrorHandler);
 function main() {
     const PORT = process.env.PORT || 3000;
     const DB_URL = process.env.DB_URL || "";
-    mongoose.connect(DB_URL).then(() => {
+    const LOCAL_dB_URL = process.env.LOCAL_dB_URL || "";
+    mongoose.connect(LOCAL_dB_URL).then(() => {
         console.log("connected");
         app.listen(PORT, () => {
             console.log(`http://localhost:${PORT}`);

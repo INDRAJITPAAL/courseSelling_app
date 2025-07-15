@@ -1,61 +1,48 @@
 import express from "express";
 const userPurchaseRoute = express.Router();
-import { auth } from "../middleware/userAuth";
+import { auth } from "../middleware/userAuth.middleware";
 import { userPurchase } from "../validator/object.validator";
 import { PurchasedModel } from "../models/db.models";
+import { AppError } from "../utils/AppError.class.utils";
+import { tryCatch } from "../utils/tryCatch.handler.error.utils";
+
 const user_jwt = process.env.USER_JWT_SECRET;
 
-userPurchaseRoute.post("/course", auth(user_jwt), async (req, res) => {
-    const parsedBody = userPurchase.safeParse(req.body);
+userPurchaseRoute.post("/course/:courseId", auth(user_jwt), tryCatch(async (req, res, next) => {
+    const parsedBody = userPurchase.safeParse({ courseId: req.params.courseId });
     if (!parsedBody.success) {
-        return res.status(404).json({
-            status: false,
-            error: parsedBody.error,
-        })
-
+        return next(new AppError(parsedBody.error, 400)); // 400 Bad Request
     }
+
     const userId = req.userId;
-    const courseId = parsedBody.data;
-    //first we have to set payment method here
-    const purchasedCourse = await PurchasedModel.create({
+    const courseId = parsedBody.data.courseId;
+
+    await PurchasedModel.create({
         userId,
         courseId
     });
-    if (!purchasedCourse) {
-        return res.json(500).json({
-            status: false,
-            msg: "course purchase fail",
-        })
-    }
 
-    return res.json(200).json({
+
+    return res.status(200).json({
         status: true,
-        msg: "course purchase fail",
-    })
-
-
-});
-
-userPurchaseRoute.get("/course/purchased", auth(user_jwt), async (req, res) => {
-    const userId = req.userId;
-    //first we have to set payment method here
-    const purchasedCourse = await PurchasedModel.find({
-        userId
+        msg: "Course purchased successfully",
     });
-    if (purchasedCourse.length === 0) {
-        return res.json(500).json({
-            status: false,
-            msg: "No Course Found",
-        })
+}));
+
+userPurchaseRoute.get("/course", auth(user_jwt), tryCatch(async (req, res, next) => {
+    const userId = req.userId;
+    const purchasedCourse = await PurchasedModel.find({ userId }, {
+        $in: { _id: purchasedCourse.courseId }
+    });
+
+    if (!purchasedCourse || purchasedCourse.length === 0) {
+        return next(new AppError("No course found", 404));
     }
 
-    return res.json(200).json({
+    return res.status(200).json({
         status: true,
-        curser: purchasedCourse.populate("courseId"),
-    })
+        course: purchasedCourse,
+    });
+}));
 
-
-});
-
-
-export default { userPurchaseRoute };
+export { userPurchaseRoute };
